@@ -86,10 +86,10 @@ static const __SIZE_TYPE__ function_pointer_permissions_mask =
 
 static const __SIZE_TYPE__ constant_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__ |
-#ifdef __riscv_zcherilevels
-		     __CHERI_CAP_PERMISSION_STORE_LEVEL__ |
+#if defined(__riscv_zylevels1b) || defined(__riscv_zcherilevels)
+                     __CHERI_CAP_PERMISSION_STORE_LEVEL__ |
 #endif
-		     __CHERI_CAP_PERMISSION_EXECUTE__);
+                     __CHERI_CAP_PERMISSION_EXECUTE__);
 static const __SIZE_TYPE__ global_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_EXECUTE__);
 #endif
@@ -261,9 +261,15 @@ cheri_init_globals_3(void *__capability data_cap,
           "lla %1, __stop___cap_relocs\n\t"
           : "=r"(start_addr), "=r"(stop_addr));
 #else
+#if defined(__riscv_y)
+  __asm__("lly %0, __start___cap_relocs\n\t"
+          "lly %1, __stop___cap_relocs\n\t"
+          : "=C"(start_relocs), "=C"(stop_relocs));
+#else
   __asm__("llc %0, __start___cap_relocs\n\t"
           "llc %1, __stop___cap_relocs\n\t"
           : "=C"(start_relocs), "=C"(stop_relocs));
+#endif
   start_addr = cheri_address_or_offset_get(start_relocs);
   stop_addr = cheri_address_or_offset_get(stop_relocs);
 #endif
