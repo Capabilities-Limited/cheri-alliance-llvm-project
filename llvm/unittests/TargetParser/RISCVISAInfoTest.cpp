@@ -894,7 +894,7 @@ TEST(ToFeatures, AddAllExtensionsAddsNegativeExtensions) {
 
 TEST(OrderedExtensionMap, ExtensionsAreCorrectlyOrdered) {
   RISCVISAUtils::OrderedExtensionMap Exts;
-  for (auto ExtName : {"y", "l", "m", "c", "i", "xfoo", "xbar", "sfoo", "sbar",
+  for (auto ExtName : {"l", "m", "c", "i", "xfoo", "xbar", "sfoo", "sbar",
                        "zmfoo", "zzfoo", "zfinx", "zicsr"})
     Exts[ExtName] = {1, 0};
 
@@ -902,9 +902,9 @@ TEST(OrderedExtensionMap, ExtensionsAreCorrectlyOrdered) {
   for (const auto &Ext : Exts)
     ExtNames.push_back(Ext.first);
 
-  // FIXME: 'l' and 'y' should be ordered after 'i', 'm', 'c'.
+  // FIXME: 'l' should be ordered after 'i', 'm', 'c'.
   EXPECT_THAT(ExtNames,
-              ElementsAre("i", "m", "l", "c", "y", "zicsr", "zmfoo", "zfinx",
+              ElementsAre("i", "m", "l", "c", "zicsr", "zmfoo", "zfinx",
                            "zzfoo", "sbar", "sfoo", "xbar", "xfoo"));
 }
 
@@ -1054,6 +1054,7 @@ R"(All available -march extensions for RISC-V
     Name                 Version   Description
     i                    2.1       This is a long dummy description
     e                    2.0
+    y                    0.99
     m                    2.0
     a                    2.1
     f                    2.2
@@ -1062,7 +1063,6 @@ R"(All available -march extensions for RISC-V
     b                    1.0
     v                    1.0
     h                    1.0
-    y                    0.99
     zic64b               1.0
     zicbom               1.0
     zicbop               1.0
@@ -1080,6 +1080,8 @@ R"(All available -march extensions for RISC-V
     zihpm                2.0
     zimop                1.0
     zish4add             0.9
+    zyhybrid             0.99
+    zylevels1b           0.99
     zmmul                1.0
     za128rs              1.0
     za64rs               1.0
@@ -1164,8 +1166,6 @@ R"(All available -march extensions for RISC-V
     zvl8192b             1.0
     zhinx                1.0
     zhinxmin             1.0
-    zyhybrid             0.99
-    zylevels1b           0.99
     sha                  1.0
     shcounterenw         1.0
     shgatpa              1.0
