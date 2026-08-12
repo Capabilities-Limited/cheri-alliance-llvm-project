@@ -223,7 +223,7 @@ let Predicates = [NotCapMode, HasZCheriHybrid] in {
 // Special Capabilty Register Access Instructions
 //===----------------------------------------------------------------------===//
 
-let Predicates = [HasZCheriPurecap] in {
+let Predicates = [HasYOrZCheriPurecap] in {
 
 let DecoderNamespace = "CapModeOnly_" in {
 def CHERI_CSRRW : CheriCSR_ir<0b001, "csrrw">;
@@ -266,7 +266,7 @@ def : InstAlias<"csrrc $cd, $csr, $imm",
                 (CHERI_CSRRCI GPCR:$cd, cheri_csr_sysreg:$csr,   uimm5:$imm)>;
 }
 
-} // Predicates = [HasZCheriPurecap]
+} // Predicates = [HasYOrZCheriPurecap]
 
 //===----------------------------------------------------------------------===//
 // Memory-Access Instructions
@@ -453,7 +453,6 @@ def : PatGpcrGpr<int_cheri_cap_flags_set, SCMODE>;
 let Predicates = [IsPureCapABI, HasZCheriPurecap] in {
 def : Pat<(inttoptr (XLenVT GPR:$rs2)), (CADD C0, GPR:$rs2)>;
 def : Pat<(inttoptr simm12:$imm12), (CADDI C0, simm12:$imm12)>;
-def : Pat<(XLenVT (ptrtoint GPCR:$rs1)), (PseudoCGetAddr GPCR:$rs1)>;
 }
 
 let Predicates = [HasZCheriPurecap] in {
@@ -469,14 +468,14 @@ def : PatGpcrGpcr<riscv_cap_equal_exact, SCEQ, XLenVT>;
 
 /// Special Capability Register Access Instructions
 
-let Predicates = [HasZCheriPurecap, HasZCheriHybrid] in
+let Predicates = [HasZyhybridOrZCheriHybrid] in
 def : Pat<(int_cheri_ddc_get), (CHERI_CSRRC CSR_DDC.Encoding, (XLenVT X0))>;
 
 
 // Pseudo instruction to handle getting pcc when in integer mode
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0, Size = 12 in
 def PseudoCheriPccGetIntMode : Pseudo<(outs GPCR:$rd), (ins), []>;
-let Predicates = [HasZCheriHybrid, NotCapMode] in
+let Predicates = [HasZyhybridOrZCheriHybrid, NotCapMode] in
 def : Pat<(int_cheri_pcc_get), (PseudoCheriPccGetIntMode)>;
 
 /// Capability loads
