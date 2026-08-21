@@ -5,7 +5,7 @@ define dso_local i8 addrspace(200)* @inttopointer(i64 %integer) addrspace(200) {
 ; RV64PURECAP-LABEL: inttopointer:
 ; RV64LEGACY-LABEL: inttopointer:
 ; RV64LEGACY:       # %bb.0: # %entry
-; RV64LEGACY-NEXT:    csrrc ca1, ddc, zero
+; RV64LEGACY-NEXT:    csrr ca1, ddc
 ; RV64LEGACY-NEXT:    bnez a0, .LBB0_2
 ; RV64LEGACY-NEXT:  # %bb.1: # %entry
 ; RV64LEGACY-NEXT:    cmv ca0, cnull

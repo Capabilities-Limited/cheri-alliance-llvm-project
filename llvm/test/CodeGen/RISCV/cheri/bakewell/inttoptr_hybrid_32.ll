@@ -5,7 +5,7 @@
 define dso_local i8 addrspace(200)* @inttopointer(i32 %integer) addrspace(200) {
 ; RV32LEGACY-LABEL: inttopointer:
 ; RV32LEGACY:       # %bb.0: # %entry
-; RV32LEGACY-NEXT:    csrrc ca1, ddc, zero
+; RV32LEGACY-NEXT:    csrr ca1, ddc
 ; RV32LEGACY-NEXT:    bnez a0, .LBB0_2
 ; RV32LEGACY-NEXT:  # %bb.1: # %entry
 ; RV32LEGACY-NEXT:    cmv ca0, cnull

@@ -28,7 +28,7 @@ define i64 @to_pointer_ddc_relative(i8 addrspace(200)* %cap) nounwind {
 define i8 addrspace(200)* @from_ddc(i64 %ptr) nounwind {
 ; HYBRID-LABEL: from_ddc:
 ; HYBRID:       # %bb.0:
-; HYBRID-NEXT:    csrrc ca1, ddc, zero
+; HYBRID-NEXT:    csrr ca1, ddc
 ; HYBRID-NEXT:    bnez a0, .LBB2_2
 ; HYBRID-NEXT:  # %bb.1:
 ; HYBRID-NEXT:    cmv ca0, cnull
@@ -43,7 +43,7 @@ define i8 addrspace(200)* @from_ddc(i64 %ptr) nounwind {
 define i8 addrspace(200)* @ddc_get() nounwind {
 ; HYBRID-LABEL: ddc_get:
 ; HYBRID:       # %bb.0:
-; HYBRID-NEXT:    csrrc ca0, ddc, zero
+; HYBRID-NEXT:    csrr ca0, ddc
 ; HYBRID-NEXT:    ret
   %cap = call i8 addrspace(200)* @llvm.cheri.ddc.get()
   ret i8 addrspace(200)* %cap
