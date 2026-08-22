@@ -2289,9 +2289,16 @@ ParseStatus RISCVAsmParser::parseCSRSystemRegister(OperandVector &Operands) {
     if (auto *CE = dyn_cast<MCConstantExpr>(E)) {
       int64_t Imm = CE->getValue();
       if (isUInt<12>(Imm)) {
-        auto CheriSysReg = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
-        if (CheriSysReg && STI->hasFeature(RISCV::FeatureCapMode)) {
-          return RISCVOperand::createCheriSysReg(CheriSysReg->Name, S, Imm);
+        if (STI->hasFeature(RISCV::FeatureCapMode)) {
+          auto Range = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
+          for (auto &Reg : Range) {
+            if (Reg.IsYName && !STI->hasFeature(RISCV::FeatureStdExtY))
+              continue;
+            if (Reg.IsZcheriName &&
+                !STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
+              continue;
+            return RISCVOperand::createCheriSysReg(Reg.Name, S, Imm);
+          }
         }
         auto Range = RISCVSysReg::lookupSysRegByEncoding(Imm);
         // Accept an immediate representing a named Sys Reg if it satisfies the
@@ -2337,9 +2344,17 @@ ParseStatus RISCVAsmParser::parseCSRSystemRegister(OperandVector &Operands) {
 
     const auto *CheriSysReg = RISCVCheriSysReg::lookupCheriSysRegByName(Identifier);
     if (CheriSysReg) {
-      Operands.push_back(RISCVOperand::createCheriSysReg(
-          Identifier, S, CheriSysReg->Encoding));
-      return ParseStatus::Success;
+      if (CheriSysReg->IsZcheriName &&
+          !STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
+        return Error(S, Twine("system register '") + CheriSysReg->Name + "' is Zcheripurecap only");
+      // Currently all YLEN CSRs with IsYName set are the extended CSRs that
+      // use the same name as their XLEN counterpart. Only match those for
+      // capability mode, lest we break integer mode's access to them.
+      if (!CheriSysReg->IsYName || STI->hasFeature(RISCV::FeatureCapMode)) {
+        Operands.push_back(RISCVOperand::createCheriSysReg(
+            Identifier, S, CheriSysReg->Encoding));
+        return ParseStatus::Success;
+      }
     }
 
     const auto *SysReg = RISCVSysReg::lookupSysRegByName(Identifier);
