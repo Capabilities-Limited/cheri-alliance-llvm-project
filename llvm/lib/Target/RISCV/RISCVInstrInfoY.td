@@ -286,7 +286,7 @@ def : InstAlias<"sy $rs2, (${rs1})",
 //
 let Predicates = [HasStdExtZyhybrid] in {
 def YMODER : RVY_r_xy<0b00110, "ymoder">;
-def YMODEW : RVY_rr<0b0101011, "ymodew", YGPR, YGPRNoX0, GPR>;
+def YMODEW : RVY_rr<0b0101011, "ymodew", YGPRNoX0, YGPR, GPR>;
 def YMODESWY : RVY_ymodesw<0b00000, "ymodeswy">;
 def YMODESWI : RVY_ymodesw<0b00001, "ymodeswi">;
 }
