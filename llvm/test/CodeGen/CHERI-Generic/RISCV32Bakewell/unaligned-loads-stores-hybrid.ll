@@ -11,7 +11,7 @@ define i64 @load_global_i64_align_1(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi0:
 ; CHECK-NEXT:    auipc a0, %got_pcrel_hi(a1)
 ; CHECK-NEXT:    lw a0, %pcrel_lo(.Lpcrel_hi0)(a0)
-; CHECK-NEXT:    csrrc ca1, ddc, zero
+; CHECK-NEXT:    csrr ca1, ddc
 ; CHECK-NEXT:    bnez a0, .LBB0_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca0, cnull
@@ -56,7 +56,7 @@ define i64 @load_global_i64_align_2(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi1:
 ; CHECK-NEXT:    auipc a0, %got_pcrel_hi(a2)
 ; CHECK-NEXT:    lw a0, %pcrel_lo(.Lpcrel_hi1)(a0)
-; CHECK-NEXT:    csrrc ca1, ddc, zero
+; CHECK-NEXT:    csrr ca1, ddc
 ; CHECK-NEXT:    bnez a0, .LBB1_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca0, cnull
@@ -85,7 +85,7 @@ define i64 @load_global_i64_align_4(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi2:
 ; CHECK-NEXT:    auipc a0, %got_pcrel_hi(a4)
 ; CHECK-NEXT:    lw a0, %pcrel_lo(.Lpcrel_hi2)(a0)
-; CHECK-NEXT:    csrrc ca1, ddc, zero
+; CHECK-NEXT:    csrr ca1, ddc
 ; CHECK-NEXT:    bnez a0, .LBB2_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca1, cnull
@@ -106,7 +106,7 @@ define i64 @load_global_i64_align_8(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi3:
 ; CHECK-NEXT:    auipc a0, %got_pcrel_hi(a8)
 ; CHECK-NEXT:    lw a0, %pcrel_lo(.Lpcrel_hi3)(a0)
-; CHECK-NEXT:    csrrc ca1, ddc, zero
+; CHECK-NEXT:    csrr ca1, ddc
 ; CHECK-NEXT:    bnez a0, .LBB3_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca1, cnull
@@ -127,7 +127,7 @@ define void @store_global_i64_align_1(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi4:
 ; CHECK-NEXT:    auipc a2, %got_pcrel_hi(a1)
 ; CHECK-NEXT:    lw a2, %pcrel_lo(.Lpcrel_hi4)(a2)
-; CHECK-NEXT:    csrrc ca3, ddc, zero
+; CHECK-NEXT:    csrr ca3, ddc
 ; CHECK-NEXT:    bnez a2, .LBB4_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca2, cnull
@@ -166,7 +166,7 @@ define void @store_global_i64_align_2(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi5:
 ; CHECK-NEXT:    auipc a2, %got_pcrel_hi(a2)
 ; CHECK-NEXT:    lw a2, %pcrel_lo(.Lpcrel_hi5)(a2)
-; CHECK-NEXT:    csrrc ca3, ddc, zero
+; CHECK-NEXT:    csrr ca3, ddc
 ; CHECK-NEXT:    bnez a2, .LBB5_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca2, cnull
@@ -193,7 +193,7 @@ define void @store_global_i64_align_4(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi6:
 ; CHECK-NEXT:    auipc a2, %got_pcrel_hi(a4)
 ; CHECK-NEXT:    lw a2, %pcrel_lo(.Lpcrel_hi6)(a2)
-; CHECK-NEXT:    csrrc ca3, ddc, zero
+; CHECK-NEXT:    csrr ca3, ddc
 ; CHECK-NEXT:    bnez a2, .LBB6_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca2, cnull
@@ -214,7 +214,7 @@ define void @store_global_i64_align_8(i64 %y) addrspace(200) nounwind {
 ; CHECK-NEXT:  .Lpcrel_hi7:
 ; CHECK-NEXT:    auipc a2, %got_pcrel_hi(a8)
 ; CHECK-NEXT:    lw a2, %pcrel_lo(.Lpcrel_hi7)(a2)
-; CHECK-NEXT:    csrrc ca3, ddc, zero
+; CHECK-NEXT:    csrr ca3, ddc
 ; CHECK-NEXT:    bnez a2, .LBB7_2
 ; CHECK-NEXT:  # %bb.1:
 ; CHECK-NEXT:    cmv ca2, cnull
