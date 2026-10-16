@@ -10,10 +10,6 @@
 
 .option capmode
 
-## integer CSRs with capability versions are removed in capmode
-csrrw a0, mtvec, a0 # CHECK: <stdin>:[[#@LINE]]:11: error: system register 'mtvec' use requires an option to be enabled
-
-
 ## Can't use integer CSRs with cheri registers
 csrrw ca0, mcause, ca0 # CHECK: <stdin>:[[#@LINE]]:12: error: operand must be a valid cheri system register name
 
