@@ -2347,9 +2347,14 @@ ParseStatus RISCVAsmParser::parseCSRSystemRegister(OperandVector &Operands) {
       if (CheriSysReg->IsZcheriName &&
           !STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
         return Error(S, Twine("system register '") + CheriSysReg->Name + "' is Zcheripurecap only");
-      Operands.push_back(RISCVOperand::createCheriSysReg(
-          Identifier, S, CheriSysReg->Encoding));
-      return ParseStatus::Success;
+      // Currently all YLEN CSRs with IsYName set are the extended CSRs that
+      // use the same name as their XLEN counterpart. Only match those for
+      // capability mode, lest we break integer mode's access to them.
+      if (!CheriSysReg->IsYName || STI->hasFeature(RISCV::FeatureCapMode)) {
+        Operands.push_back(RISCVOperand::createCheriSysReg(
+            Identifier, S, CheriSysReg->Encoding));
+        return ParseStatus::Success;
+      }
     }
 
     const auto *SysReg = RISCVSysReg::lookupSysRegByName(Identifier);
