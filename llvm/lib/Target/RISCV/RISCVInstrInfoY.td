@@ -59,20 +59,6 @@ def ybndsw_imm : RISCVOp<XLenVT>, ImmLeaf<XLenVT, [{
   let OperandType = "OPERAND_UIMM9_YBNDSWI";
 }
 
-def uimm7_eq_xlen : RISCVUImmOp<7>, ImmLeaf<XLenVT, [{
-  return Imm == Subtarget->getXLen();
-}]> {
-  let ParserMatchClass = UImmAsmOperand<7, "EqXLen">;
-  let DecoderMethod = "decodeUImm7EqXLenOperand";
-  let MCOperandPredicate = [{
-    int64_t Imm;
-    if (!MCOp.evaluateAsConstantImm(Imm))
-      return false;
-    return Imm == Subtarget->getXLen()
-  }];
-  let OperandType = "OPERAND_UIMM7_EQ_XLEN";
-}
-
 //===----------------------------------------------------------------------===//
 // Instruction Formats and class templates
 //===----------------------------------------------------------------------===//
@@ -128,15 +114,6 @@ class RVY_bndswi<string opcodestr>
 
   let Inst{31-29} = 0b111;
   let Inst{28-20} = imm;
-}
-class RVY_srli<string opcodestr>
-    : RVInstIBase<0b101, OPC_RVY_A, (outs GPR:$rd),
-                  (ins YGPR:$rs1, uimm7_eq_xlen:$shamt), opcodestr,
-                  "$rd, $rs1, $shamt"> {
-  bits<7> shamt;
-
-  let Inst{31-27} = 0b00000;
-  let Inst{26-20} = shamt;
 }
 
 let mayLoad = 1 in
@@ -212,16 +189,15 @@ def YPERMC : RVY_rr<0b0010011, "ypermc", YGPR, YGPR, GPR>;
 // YMV is encoded as YADD with rs2=x0
 let isReMaterializable = true, isAsCheapAsAMove = true, isMoveReg = true in
 def YMV : RVYInst2Op<0b0000011, 0b00000, YGPR, YGPR, "ymv", "$rd, $rs1">;
-def PACKY : RVY_rr<0b0000001, "packy", YGPR, YGPR, GPR>;
-def : MnemonicAlias<"yhiw", "packy">;
+def YHIW : RVY_rr<0b0000001, "yhiw", YGPR, YGPR, GPR>;
 def YBNDSW : RVY_rr<0b0011011, "ybndsw", YGPR, YGPR, GPR>;
 def YBNDSWI : RVY_bndswi<"ybndswi">;
 def : InstAlias<"ybndsw $rd, $rs1, $imm",
                 (YBNDSWI YGPR:$rd, YGPR:$rs1, ybndsw_imm:$imm), 0>;
 def YBNDSRW : RVY_rr<0b0100011, "ybndsrw", YGPR, YGPR, GPR>;
-def YSUNSEAL : RVY_rr<0b0000111, "ysunseal", YGPR, YGPR, YGPR>;
+def YUNSEALS : RVY_rr<0b0000111, "yunseals", YGPR, YGPR, YGPR>;
 def YBLD : RVY_rr<0b0001111, "ybld", YGPR, YGPR, YGPR>;
-def YSENTRY : RVY_0r<0b0010111, "ysentry", YGPR, YGPR>;
+def YSEALE : RVY_0r<0b0010111, "yseale", YGPR, YGPR>;
 
 //
 // Instructions to Decode Capability Bounds
@@ -236,17 +212,8 @@ def YTOPR : RVY_r_xy<0b00010, "ytopr">;
 def YTAGR : RVY_r_xy<0b00100, "ytagr">;
 def YPERMR : RVY_r_xy<0b00001, "ypermr">;
 def YTYPER : RVY_r_xy<0b00101, "ytyper">;
-// Extracting the high bits of capabilities is effectively a XLEN-bit right
-// shift. It is encoded this way so that a future "YLEN arithmetic" extension
-// can define shifts with arbitrary shift amounts. YHIR is a pseudo that expands
-// to the XLEN-wide shift value depending on RV32/RV64.
-def SRLIY : RVY_srli<"srliy">;
-let Predicates = [HasStdExtY, IsRV64] in {
-def : InstAlias<"yhir $rd, $rs1", (SRLIY GPR:$rd, YGPR:$rs1, 64)>;
-}
-let Predicates = [HasStdExtY, IsRV32] in {
-def : InstAlias<"yhir $rd, $rs1", (SRLIY GPR:$rd, YGPR:$rs1, 32)>;
-}
+def YHIR : RVY_r_xy<0b00111, "yhir">;
+
 //
 // Miscellaneous Instructions to Handle Capability Data
 //
@@ -358,7 +325,7 @@ def : PatYgprGpr<int_cheri_cap_address_set, YADDRW>;
 // Instructions to Manipulate Capabilities
 //
 def : PatYgprGpr<riscv_ypermc, YPERMC>;
-def : PatYgprGpr<int_cheri_cap_high_set, PACKY>;
+def : PatYgprGpr<int_cheri_cap_high_set, YHIW>;
 def : PatYgprGpr<int_cheri_cap_bounds_set_exact, YBNDSW>;
 def : Pat<(int_cheri_cap_bounds_set_exact YGPR:$rs1, ybndsw_imm:$imm),
           (YBNDSWI YGPR:$rs1, ybndsw_imm:$imm)>;
@@ -370,7 +337,7 @@ def : PatYgprGpr<int_cheri_cap_bounds_set, YBNDSRW>;
 def : PatYgprGpr<int_cheri_bounded_stack_cap, YBNDSW>;
 def : PatYgprGpr<int_cheri_bounded_stack_cap_dynamic, YBNDSW>;
 def : PatYgprYgpr<int_cheri_cap_build, YBLD>;
-def : PatYgpr<int_cheri_cap_seal_entry, YSENTRY, CLenVT>;
+def : PatYgpr<int_cheri_cap_seal_entry, YSEALE, CLenVT>;
 
 //
 // Instructions to Decode Capability Bounds
@@ -388,10 +355,7 @@ def : PatYgpr<int_cheri_cap_type_get, YTYPER>;
 // TODO: Copied from Zcheripurecap, not valid for Zyseal, should legalise
 // in DAG-to-DAG or similar as != 0.
 def : PatYgpr<riscv_cap_sealed_get, YTYPER>;
-let Predicates = [HasStdExtY, IsRV64] in
-def : Pat<(int_cheri_cap_high_get YGPR:$rs1), (i64 (SRLIY YGPR:$rs1, 64))>;
-let Predicates = [HasStdExtY, IsRV32] in
-def : Pat<(int_cheri_cap_high_get YGPR:$rs1), (i32 (SRLIY YGPR:$rs1, 32))>;
+def : PatYgpr<int_cheri_cap_high_get, YHIR>;
 
 //
 // Miscellaneous Instructions to Handle Capability Data
@@ -426,6 +390,7 @@ defm : CheriStPat<atomic_store_cap, CSY, GPCR, CLenVT>;
 let Predicates = [HasStdExtZyhybrid] in {
 def : PatYgpr<int_cheri_cap_flags_get, YMODER>;
 def : PatYgprGpr<int_cheri_cap_flags_set, YMODEW>;
+def : Pat<(int_cheri_ddc_get), (CHERI_CSRRS RVY_CSR_DDC.Encoding, (XLenVT X0))>;
 } // Predicates = [HasStdExtZyhybrid]
 
 //

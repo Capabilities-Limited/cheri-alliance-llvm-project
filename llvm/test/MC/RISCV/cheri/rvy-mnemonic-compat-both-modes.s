@@ -31,6 +31,8 @@ yaddi x1, x2, -173
 yadd x1, x2, -173
 # CHECK-NEXT: csealentry cra, csp # encoding: [0xdb,0x00,0x11,0xff]
 ysentry x1, x2
+# CHECK-NEXT: csealentry cra, csp # encoding: [0xdb,0x00,0x11,0xff]
+yseale x1, x2
 # CHECK-NEXT: cbuildcap cra, csp, cgp # encoding: [0xdb,0x00,0x31,0x3a]
 ybld x1, x2, x3
 # CHECK-NEXT: csetbounds cra, csp, gp # encoding: [0xdb,0x00,0x31,0x10]
@@ -57,5 +59,7 @@ ypermr ra, sp
 yaddi ra, sp, -173
 # CHECK-NEXT: csealentry cra, csp # encoding: [0xdb,0x00,0x11,0xff]
 ysentry ra, sp
+# CHECK-NEXT: csealentry cra, csp # encoding: [0xdb,0x00,0x11,0xff]
+yseale ra, sp
 # CHECK-NEXT: cbuildcap cra, csp, cgp # encoding: [0xdb,0x00,0x31,0x3a]
 ybld ra, sp, gp

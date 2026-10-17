@@ -857,16 +857,6 @@ public:
            VK == RISCVMCExpr::VK_RISCV_None;
   }
 
-  bool isUImm7EqXLen() const {
-    if (!isImm())
-      return false;
-    int64_t Imm;
-    RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
-    bool IsConstantImm = evaluateConstantImm(getImm(), Imm, VK);
-    return IsConstantImm && (isRV64Imm() ? Imm == 64 : Imm == 32) &&
-           VK == RISCVMCExpr::VK_RISCV_None;
-  }
-
   bool isUImm8GE32() const {
     int64_t Imm;
     RISCVMCExpr::VariantKind VK = RISCVMCExpr::VK_RISCV_None;
@@ -2050,11 +2040,6 @@ bool RISCVAsmParser::matchAndEmitInstruction(SMLoc IDLoc, unsigned &Opcode,
                            "[1, 255], a multiple of 8 in the range [256, 504], "
                            "or a multiple of 16 in the range [512, 4096]");
   }
-  case Match_InvalidUImm7EqXLen: {
-    const SMLoc ErrorLoc = ((RISCVOperand &)*Operands[ErrorInfo]).getStartLoc();
-    return Error(ErrorLoc, "immediate must be an integer equal to XLEN (" +
-                               Twine(isRV64() ? "64" : "32") + ")");
-  }
   case Match_InvalidCSetBndImm: {
     const SMLoc ErrorLoc = ((RISCVOperand &)*Operands[ErrorInfo]).getStartLoc();
     return Error(ErrorLoc, "immediate must be an integer in range [0, 31] "
@@ -2290,15 +2275,15 @@ ParseStatus RISCVAsmParser::parseCSRSystemRegister(OperandVector &Operands) {
       int64_t Imm = CE->getValue();
       if (isUInt<12>(Imm)) {
         if (STI->hasFeature(RISCV::FeatureCapMode)) {
-          auto Range = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
-          for (auto &Reg : Range) {
-            if (Reg.IsYName && !STI->hasFeature(RISCV::FeatureStdExtY))
-              continue;
-            if (Reg.IsZcheriName &&
-                !STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
-              continue;
-            return RISCVOperand::createCheriSysReg(Reg.Name, S, Imm);
-          }
+          const RISCVCheriSysReg::CheriSysReg *Reg;
+          if (STI->hasFeature(RISCV::FeatureStdExtY))
+            Reg = RISCVCheriSysReg::lookupRVYSysRegByEncoding(Imm);
+          else if (STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
+            Reg = RISCVCheriSysReg::lookupZCheriSysRegByEncoding(Imm);
+          else
+            Reg = nullptr;
+          if (Reg)
+            return RISCVOperand::createCheriSysReg(Reg->Name, S, Imm);
         }
         auto Range = RISCVSysReg::lookupSysRegByEncoding(Imm);
         // Accept an immediate representing a named Sys Reg if it satisfies the
@@ -2342,15 +2327,17 @@ ParseStatus RISCVAsmParser::parseCSRSystemRegister(OperandVector &Operands) {
     if (getParser().parseIdentifier(Identifier))
       return ParseStatus::Failure;
 
-    const auto *CheriSysReg = RISCVCheriSysReg::lookupCheriSysRegByName(Identifier);
+    const RISCVCheriSysReg::CheriSysReg *CheriSysReg;
+    if (STI->hasFeature(RISCV::FeatureStdExtY))
+      CheriSysReg = RISCVCheriSysReg::lookupRVYSysRegByName(Identifier);
+    else if (STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap)) {
+      CheriSysReg = RISCVCheriSysReg::lookupZCheriSysRegByName(Identifier);
+      if (!CheriSysReg)
+        CheriSysReg = RISCVCheriSysReg::lookupZCheriAliasSysRegByName(Identifier);
+    } else
+      CheriSysReg = nullptr;
     if (CheriSysReg) {
-      if (CheriSysReg->IsZcheriName &&
-          !STI->hasFeature(RISCV::FeatureStdExtZCheriPureCap))
-        return Error(S, Twine("system register '") + CheriSysReg->Name + "' is Zcheripurecap only");
-      // Currently all YLEN CSRs with IsYName set are the extended CSRs that
-      // use the same name as their XLEN counterpart. Only match those for
-      // capability mode, lest we break integer mode's access to them.
-      if (!CheriSysReg->IsYName || STI->hasFeature(RISCV::FeatureCapMode)) {
+      if (!CheriSysReg->IsExt || STI->hasFeature(RISCV::FeatureCapMode)) {
         Operands.push_back(RISCVOperand::createCheriSysReg(
             Identifier, S, CheriSysReg->Encoding));
         return ParseStatus::Success;

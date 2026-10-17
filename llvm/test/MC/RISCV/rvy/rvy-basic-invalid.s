@@ -1,7 +1,7 @@
 // RUN: not llvm-mc --triple riscv32 --mattr=+y <%s 2>&1 \
-// RUN:   | FileCheck %s --check-prefixes=CHECK,CHECK-32 --implicit-check-not=error:
+// RUN:   | FileCheck %s --implicit-check-not=error:
 // RUN: not llvm-mc --triple riscv64 --mattr=+y <%s 2>&1 \
-// RUN:   | FileCheck %s --check-prefixes=CHECK,CHECK-64 --implicit-check-not=error:
+// RUN:   | FileCheck %s --implicit-check-not=error:
 
 yaddi a0, a0, -2049
 // CHECK: :[[#@LINE-1]]:15: error: operand must be a symbol with %lo/%pcrel_lo/%tprel_lo modifier or an integer in the range [-2048, 2047]
@@ -14,13 +14,6 @@ yadd a0, a1, zero
 // CHECK: :[[#@LINE-1]]:1: error: instruction requires the following: CHERI Extension
 yadd a0, a1, x0
 // CHECK: :[[#@LINE-1]]:1: error: instruction requires the following: CHERI Extension
-srliy a0, a1, 65
-// CHECK-32: :[[#@LINE-1]]:15: error: immediate must be an integer equal to XLEN (32)
-// CHECK-64: :[[#@LINE-2]]:15: error: immediate must be an integer equal to XLEN (64)
-srliy a0, a1, 64
-// CHECK-32: :[[#@LINE-1]]:15: error: immediate must be an integer equal to XLEN (32)
-srliy a0, a1, 32
-// CHECK-64: :[[#@LINE-1]]:15: error: immediate must be an integer equal to XLEN (64)
 ybndswi a0, a0, 0
 // CHECK: :[[#@LINE-1]]:1: error: instruction requires the following: CHERI Extension
 ybndswi a0, a0, 257

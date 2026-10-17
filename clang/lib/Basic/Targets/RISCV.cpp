@@ -267,8 +267,13 @@ void RISCVTargetInfo::getTargetDefines(const LangOptions &Opts,
                           Twine(1 << 16));
       Builder.defineMacro("__CHERI_CAP_PERMISSION_EXECUTE__", Twine(1 << 17));
       Builder.defineMacro("__CHERI_CAP_PERMISSION_READ__", Twine(1 << 18));
-      if (ISAInfo->hasExtension("zylevels1b") ||
-          ISAInfo->hasExtension("zcherilevels")) {
+      if (ISAInfo->hasExtension("zylg")) {
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_LOAD_GLOBAL__",
+                            Twine(1 << 2));
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_STORE_LOCAL__",
+                            Twine(1 << 3));
+        Builder.defineMacro("__CHERI_CAP_PERMISSION_GLOBAL__", Twine(1 << 4));
+      } else if (ISAInfo->hasExtension("zcherilevels")) {
         Builder.defineMacro("__CHERI_CAP_PERMISSION_ELEVATE_LEVEL__",
                             Twine(1 << 2));
         Builder.defineMacro("__CHERI_CAP_PERMISSION_STORE_LEVEL__",
@@ -451,8 +456,7 @@ bool RISCVTargetInfo::handleTargetFeatures(std::vector<std::string> &Features,
     ISAInfo = std::move(*ParseResult);
   }
   if (ISAInfo->hasExtension("xcheri") || ISAInfo->hasExtension("y") ||
-      ISAInfo->hasExtension("zyhybrid") ||
-      ISAInfo->hasExtension("zylevels1b") ||
+      ISAInfo->hasExtension("zyhybrid") || ISAInfo->hasExtension("zylg") ||
       ISAInfo->hasExtension("zcheripurecap") ||
       ISAInfo->hasExtension("zcherihybrid") ||
       ISAInfo->hasExtension("zcheripte") ||

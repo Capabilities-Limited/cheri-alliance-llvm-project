@@ -405,8 +405,15 @@ static DecodeStatus decodeCheriSysReg(MCInst &Inst, uint64_t Imm,
                                       int64_t Address,
                                       const MCDisassembler *Decoder) {
   assert(isUInt<12>(Imm) && "Invalid immediate");
-  const auto CheriSysReg = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
-  if (CheriSysReg.empty())
+  const RISCVCheriSysReg::CheriSysReg *CheriSysReg;
+  const auto &STI = Decoder->getSubtargetInfo();
+  if (STI.hasFeature(RISCV::FeatureStdExtY))
+    CheriSysReg = RISCVCheriSysReg::lookupRVYSysRegByEncoding(Imm);
+  else if (STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap))
+    CheriSysReg = RISCVCheriSysReg::lookupZCheriSysRegByEncoding(Imm);
+  else
+    CheriSysReg = nullptr;
+  if (!CheriSysReg)
     return MCDisassembler::Fail;
   Inst.addOperand(MCOperand::createImm(Imm));
   return MCDisassembler::Success;
@@ -428,20 +435,6 @@ static DecodeStatus decodeUImmLog2XLenOperand(MCInst &Inst, uint32_t Imm,
 
   if (!Decoder->getSubtargetInfo().hasFeature(RISCV::Feature64Bit) &&
       !isUInt<5>(Imm))
-    return MCDisassembler::Fail;
-
-  Inst.addOperand(MCOperand::createImm(Imm));
-  return MCDisassembler::Success;
-}
-
-static DecodeStatus decodeUImm7EqXLenOperand(MCInst &Inst, uint32_t Imm,
-                                             int64_t Address,
-                                             const MCDisassembler *Decoder) {
-  assert(isUInt<7>(Imm) && "Invalid immediate");
-
-  uint32_t ExpectedValue =
-      Decoder->getSubtargetInfo().hasFeature(RISCV::Feature64Bit) ? 64 : 32;
-  if (Imm != ExpectedValue)
     return MCDisassembler::Fail;
 
   Inst.addOperand(MCOperand::createImm(Imm));

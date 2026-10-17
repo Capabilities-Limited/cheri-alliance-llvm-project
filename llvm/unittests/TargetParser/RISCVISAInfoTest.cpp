@@ -201,11 +201,11 @@ TEST(ParseArchString, RejectsInvalidBaseISA) {
         toString(RISCVISAInfo::parseArchString(Input, true, false).takeError()),
         "invalid standard user-level extension 'e'");
   }
-  for (StringRef Input : {"rv32y0p99i", "rv64y0p99i"}) {
+  for (StringRef Input : {"rv32y0p910i", "rv64y0p910i"}) {
     EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
               "invalid standard user-level extension 'i'");
   }
-  for (StringRef Input : {"rv32y0p99e", "rv64y0p99e"}) {
+  for (StringRef Input : {"rv32y0p910e", "rv64y0p910e"}) {
     EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
               "invalid standard user-level extension 'e'");
   }
@@ -214,7 +214,7 @@ TEST(ParseArchString, RejectsInvalidBaseISA) {
 TEST(ParseArchString, RejectsInvalidYPosition) {
   // y in non-first position is rejected.
   for (StringRef Input :
-       {"rv32ey0p99", "rv64ey0p99", "rv32iy0p99", "rv64iy0p99"}) {
+       {"rv32ey0p910", "rv64ey0p910", "rv32iy0p910", "rv64iy0p910"}) {
     EXPECT_EQ(toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
               "invalid standard user-level extension 'y'");
   }
@@ -228,17 +228,17 @@ TEST(ParseArchString, RejectsInvalidYPosition) {
 TEST(ParseArchString, MissingBaseISA) {
   // With version check enabled (default), we must specify the version for
   // experimental extension 'y'.
-  auto MaybeRV32Y = RISCVISAInfo::parseArchString("rv32y0p99", true);
+  auto MaybeRV32Y = RISCVISAInfo::parseArchString("rv32y0p910", true);
   ASSERT_THAT_EXPECTED(MaybeRV32Y, Succeeded());
   RISCVISAInfo &InfoRV32Y = **MaybeRV32Y;
   const auto &ExtsRV32Y = InfoRV32Y.getExtensions();
   EXPECT_EQ(ExtsRV32Y.size(), 2UL); // i, y
   EXPECT_TRUE(ExtsRV32Y.at("i") == (RISCVISAUtils::ExtensionVersion{2, 1}));
-  EXPECT_TRUE(ExtsRV32Y.at("y") == (RISCVISAUtils::ExtensionVersion{0, 99}));
+  EXPECT_TRUE(ExtsRV32Y.at("y") == (RISCVISAUtils::ExtensionVersion{0, 910}));
   EXPECT_EQ(InfoRV32Y.getXLen(), 32U);
 
-  // rv32y0p99m should succeed and contain i, m, y0p99, zmmul
-  auto MaybeRV32YM = RISCVISAInfo::parseArchString("rv32y0p99m", true);
+  // rv32y0p910m should succeed and contain i, m, y0p910, zmmul
+  auto MaybeRV32YM = RISCVISAInfo::parseArchString("rv32y0p910m", true);
   ASSERT_THAT_EXPECTED(MaybeRV32YM, Succeeded());
   RISCVISAInfo &InfoRV32YM = **MaybeRV32YM;
   EXPECT_EQ(InfoRV32YM.getExtensions().size(), 4UL); // i, m, y, zmmul
@@ -247,20 +247,20 @@ TEST(ParseArchString, MissingBaseISA) {
   EXPECT_TRUE(InfoRV32YM.getExtensions().at("m") ==
               (RISCVISAUtils::ExtensionVersion{2, 0}));
   EXPECT_TRUE(InfoRV32YM.getExtensions().at("y") ==
-              (RISCVISAUtils::ExtensionVersion{0, 99}));
+              (RISCVISAUtils::ExtensionVersion{0, 910}));
 
   // We can also parse it without version if we disable the version check.
   auto MaybeRV32YNoVal = RISCVISAInfo::parseArchString("rv32y", true, false);
   ASSERT_THAT_EXPECTED(MaybeRV32YNoVal, Succeeded());
   EXPECT_EQ((*MaybeRV32YNoVal)->getExtensions().size(), 2UL);
 
-  auto MaybeRV64Y = RISCVISAInfo::parseArchString("rv64y0p99", true);
+  auto MaybeRV64Y = RISCVISAInfo::parseArchString("rv64y0p910", true);
   ASSERT_THAT_EXPECTED(MaybeRV64Y, Succeeded());
   RISCVISAInfo &InfoRV64Y = **MaybeRV64Y;
   const auto &ExtsRV64Y = InfoRV64Y.getExtensions();
   EXPECT_EQ(ExtsRV64Y.size(), 2UL); // i, y
   EXPECT_TRUE(ExtsRV64Y.at("i") == (RISCVISAUtils::ExtensionVersion{2, 1}));
-  EXPECT_TRUE(ExtsRV64Y.at("y") == (RISCVISAUtils::ExtensionVersion{0, 99}));
+  EXPECT_TRUE(ExtsRV64Y.at("y") == (RISCVISAUtils::ExtensionVersion{0, 910}));
   EXPECT_EQ(InfoRV64Y.getXLen(), 64U);
 }
 
@@ -744,14 +744,14 @@ TEST(ParseArchString, RejectsConflictingExtensions) {
         toString(RISCVISAInfo::parseArchString(Input, true).takeError()),
         ::testing::EndsWith(" is only supported for 'rv32'"));
 
-  EXPECT_EQ(
-      toString(
-          RISCVISAInfo::parseArchString("rv32y0p99_zcf", true).takeError()),
-      "'zcf' is incompatible with rv32y base");
-  EXPECT_EQ(
-      toString(
-          RISCVISAInfo::parseArchString("rv64y0p99_zcd", true).takeError()),
-      "'zcd' is incompatible with rv64y base");
+    EXPECT_EQ(
+        toString(
+            RISCVISAInfo::parseArchString("rv32y0p910_zcf", true).takeError()),
+        "'zcf' is incompatible with rv32y base");
+    EXPECT_EQ(
+        toString(
+            RISCVISAInfo::parseArchString("rv64y0p910_zcd", true).takeError()),
+        "'zcd' is incompatible with rv64y base");
   }
 }
 
@@ -996,7 +996,7 @@ TEST(ParseArchString, ZceImplication) {
   EXPECT_EQ(ExtsRV64IDZce.count("zcmt"), 1U);
 
   // RV32Y Zce: zcf incompatible, but zcmp/zcmt compatible.
-  auto MaybeRV32YZce = RISCVISAInfo::parseArchString("rv32y0p99_zce", true);
+  auto MaybeRV32YZce = RISCVISAInfo::parseArchString("rv32y0p910_zce", true);
   ASSERT_THAT_EXPECTED(MaybeRV32YZce, Succeeded());
   const auto &ExtsRV32YZce = (*MaybeRV32YZce)->getExtensions();
   EXPECT_EQ(ExtsRV32YZce.size(), 8UL);
@@ -1010,7 +1010,7 @@ TEST(ParseArchString, ZceImplication) {
   EXPECT_EQ(ExtsRV32YZce.count("zcmt"), 1U);
 
   // RV32Y Zce with F: zcf incompatible, so zcf is not implied.
-  auto MaybeRV32YFZce = RISCVISAInfo::parseArchString("rv32y0p99_f_zce", true);
+  auto MaybeRV32YFZce = RISCVISAInfo::parseArchString("rv32y0p910_f_zce", true);
   ASSERT_THAT_EXPECTED(MaybeRV32YFZce, Succeeded());
   const auto &ExtsRV32YFZce = (*MaybeRV32YFZce)->getExtensions();
   EXPECT_EQ(ExtsRV32YFZce.size(), 9UL);
@@ -1054,7 +1054,7 @@ R"(All available -march extensions for RISC-V
     Name                 Version   Description
     i                    2.1       This is a long dummy description
     e                    2.0
-    y                    0.99
+    y                    0.910
     m                    2.0
     a                    2.1
     f                    2.2
@@ -1080,8 +1080,8 @@ R"(All available -march extensions for RISC-V
     zihpm                2.0
     zimop                1.0
     zish4add             0.9
-    zyhybrid             0.99
-    zylevels1b           0.99
+    zyhybrid             0.910
+    zylg                 0.910
     zmmul                1.0
     za128rs              1.0
     za64rs               1.0
