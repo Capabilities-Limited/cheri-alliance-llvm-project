@@ -6,8 +6,8 @@
 # RV32Y-ZCF: LLVM ERROR: 'zcf' is incompatible with rv32y base
 # RV64Y-ZCD: LLVM ERROR: 'zcd' is incompatible with rv64y base
 
-.attribute arch, "rv32y0p99_zcf"
-# ATTR: error: invalid arch name 'rv32y0p99_zcf', 'zcf' is incompatible with rv32y base
+.attribute arch, "rv32y0p910_zcf"
+# ATTR: error: invalid arch name 'rv32y0p910_zcf', 'zcf' is incompatible with rv32y base
 
-.attribute arch, "rv64y0p99_zcd"
-# ATTR: error: invalid arch name 'rv64y0p99_zcd', 'zcd' is incompatible with rv64y base
+.attribute arch, "rv64y0p910_zcd"
+# ATTR: error: invalid arch name 'rv64y0p910_zcd', 'zcd' is incompatible with rv64y base

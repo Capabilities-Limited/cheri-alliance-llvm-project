@@ -515,13 +515,16 @@ namespace RISCVCheriSysReg {
 struct CheriSysReg {
   const char *Name;
   unsigned Encoding;
-  bool IsYName;
-  bool IsZcheriName;
+  bool IsExt;
+  bool IsY;
+  bool IsZcheri;
+  bool IsZcheriAlias;
 };
 
-#define GET_CheriSysRegsList_DECL
+#define GET_RVYSysRegsList_DECL
+#define GET_ZCheriSysRegsList_DECL
+#define GET_ZCheriAliasSysRegsList_DECL
 #include "RISCVGenSearchableTables.inc"
-#undef GET_CheriSysRegsList_DECL
 } // end namespace RISCVCheriSysReg
 
 namespace RISCVInsnOpcode {

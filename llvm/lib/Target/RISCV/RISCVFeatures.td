@@ -1018,25 +1018,25 @@ def HasStdExtSmctrOrSsctr : Predicate<"Subtarget->hasStdExtSmctrOrSsctr()">,
 
 // "Y" extension (CHERI support)
 
-def FeatureStdExtY : RISCVExtension<0, 99, "'Base Y' (CHERI)">;
+def FeatureStdExtY : RISCVExtension<0, 910, "'Base Y' (CHERI)">;
 def HasStdExtY : Predicate<"Subtarget->hasStdExtY()">,
                  AssemblerPredicate<(all_of FeatureStdExtY), "'Base Y' (CHERI)">;
 def NoStdExtY : Predicate<"!Subtarget->hasStdExtY()">;
 
 def FeatureStdExtZyhybrid
-    : RISCVExtension<0, 99, "CHERI Pointer Modes", [FeatureStdExtY]>;
+    : RISCVExtension<0, 910, "CHERI Pointer Modes", [FeatureStdExtY]>;
 def HasStdExtZyhybrid :
       Predicate<"Subtarget->hasStdExtZyhybrid()">,
       AssemblerPredicate<(all_of FeatureStdExtZyhybrid),
                          "'Zyhybrid' (CHERI Pointer Modes)">;
 
-def FeatureStdExtZylevels1b
-    : RISCVExtension<0, 99, "CHERI 2-Level Information Flow Control",
+def FeatureStdExtZylg
+    : RISCVExtension<0, 910, "CHERI 2-Level (Local/Global) Information Flow Control",
                      [FeatureStdExtY]>;
-def HasStdExtZylevels1b :
-      Predicate<"Subtarget->hasStdExtZylevels1b()">,
-      AssemblerPredicate<(all_of FeatureStdExtZylevels1b),
-                         "'Zylevels1b' (CHERI 2-Level Information Flow Control)">;
+def HasStdExtZylg :
+      Predicate<"Subtarget->hasStdExtZylg()">,
+      AssemblerPredicate<(all_of FeatureStdExtZylg),
+                         "'Zylg' (CHERI 2-Level (Local/Global) Information Flow Control)">;
 
 //===----------------------------------------------------------------------===//
 // Vendor extensions

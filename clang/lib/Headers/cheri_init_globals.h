@@ -86,7 +86,9 @@ static const __SIZE_TYPE__ function_pointer_permissions_mask =
 
 static const __SIZE_TYPE__ constant_pointer_permissions_mask =
     ~(__SIZE_TYPE__)(__CHERI_CAP_PERMISSION_WRITE__ |
-#if defined(__riscv_zylevels1b) || defined(__riscv_zcherilevels)
+#if defined(__riscv_zylg)
+                     __CHERI_CAP_PERMISSION_STORE_LOCAL__ |
+#elif defined(__riscv_zcherilevels)
                      __CHERI_CAP_PERMISSION_STORE_LEVEL__ |
 #endif
                      __CHERI_CAP_PERMISSION_EXECUTE__);

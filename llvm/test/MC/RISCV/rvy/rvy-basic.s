@@ -1,11 +1,11 @@
 // RUN: llvm-mc --triple=riscv32 -mattr=+y --riscv-no-aliases --show-encoding --defsym=XLEN=32 < %s \
-// RUN:   | FileCheck --check-prefixes=CHECK,CHECK-ASM,CHECK-ASM-32,CHECK-32 %s
+// RUN:   | FileCheck --check-prefixes=CHECK,CHECK-ASM %s
 // RUN: llvm-mc --filetype=obj --triple=riscv32 --mattr=+y --defsym=XLEN=32 --riscv-add-build-attributes < %s \
-// RUN:   | llvm-objdump -M no-aliases -d --no-print-imm-hex - | FileCheck %s --check-prefixes=CHECK,CHECK-32
+// RUN:   | llvm-objdump -M no-aliases -d --no-print-imm-hex - | FileCheck %s
 // RUN: llvm-mc --triple=riscv64 --mattr=+y --riscv-no-aliases --show-encoding --defsym=XLEN=64 < %s \
-// RUN:   | FileCheck --check-prefixes=CHECK,CHECK-ASM,CHECK-ASM-64,CHECK-64 %s
+// RUN:   | FileCheck --check-prefixes=CHECK,CHECK-ASM %s
 // RUN: llvm-mc --filetype=obj --triple=riscv64 --mattr=+y --defsym=XLEN=64 --riscv-add-build-attributes < %s \
-// RUN:   | llvm-objdump -M no-aliases -d --no-print-imm-hex - | FileCheck %s --check-prefixes=CHECK,CHECK-64
+// RUN:   | llvm-objdump -M no-aliases -d --no-print-imm-hex - | FileCheck %s
 
 yadd a0, a0, a1
 // CHECK: yadd	a0, a0, a1
@@ -29,11 +29,8 @@ ymv a0, a0
 mv a0, a0
 // CHECK: addi	a0, a0, 0
 // CHECK-ASM-SAME: # encoding: [0x13,0x05,0x05,0x00]
-packy a0, a0, a0
-// CHECK: packy	a0, a0, a0
-// CHECK-ASM-SAME: # encoding: [0x7b,0x05,0xa5,0x02]
 yhiw a0, a0, a0
-// CHECK: packy	a0, a0, a0
+// CHECK: yhiw	a0, a0, a0
 // CHECK-ASM-SAME: # encoding: [0x7b,0x05,0xa5,0x02]
 ybndsw a0, a0, a0
 // CHECK: ybndsw	a0, a0, a0
@@ -75,8 +72,8 @@ ybndswi a0, a0, 4080
 ybndswi a0, a0, 4096
 // CHECK: ybndswi	a0, a0, 4096
 // CHECK-ASM-SAME: # encoding: [0x7b,0x55,0x05,0xe0]
-ysunseal a0, a0, a0
-// CHECK: ysunseal	a0, a0, a0
+yunseals a0, a0, a0
+// CHECK: yunseals	a0, a0, a0
 // CHECK-ASM-SAME: # encoding: [0x7b,0x05,0xa5,0x0e]
 ybld a0, a0, a0
 // CHECK: ybld	a0, a0, a0
@@ -99,16 +96,9 @@ ypermr a0, a0
 ytyper a0, a0
 // CHECK: ytyper	a0, a0
 // CHECK-ASM-SAME: # encoding: [0x7b,0x05,0x55,0xf4]
-srliy a0, a0, XLEN
-// CHECK-32: srliy	a0, a0, 32
-// CHECK-64: srliy	a0, a0, 64
-// CHECK-ASM-32-SAME: # encoding: [0x7b,0x55,0x05,0x02]
-// CHECK-ASM-64-SAME: # encoding: [0x7b,0x55,0x05,0x04]
 yhir a0, a0
-// CHECK-32: srliy	a0, a0, 32
-// CHECK-64: srliy	a0, a0, 64
-// CHECK-ASM-32-SAME: # encoding: [0x7b,0x55,0x05,0x02]
-// CHECK-ASM-64-SAME: # encoding: [0x7b,0x55,0x05,0x04]
+// CHECK: yhir	a0, a0
+// CHECK-ASM-SAME: # encoding: [0x7b,0x05,0x75,0xf4]
 yeq a0, a0, a0
 // CHECK: yeq	a0, a0, a0
 // CHECK-ASM-SAME: # encoding: [0x7b,0x05,0xa5,0x0c]

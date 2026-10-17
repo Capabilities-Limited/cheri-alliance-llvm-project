@@ -36,7 +36,9 @@ namespace RISCVSpecialCapReg {
 } // namespace RISCVSpecialCapReg
 
 namespace RISCVCheriSysReg {
-#define GET_CheriSysRegsList_IMPL
+#define GET_RVYSysRegsList_IMPL
+#define GET_ZCheriSysRegsList_IMPL
+#define GET_ZCheriAliasSysRegsList_IMPL
 #include "RISCVGenSearchableTables.inc"
 } // namespace RISCVCheriSysReg
 

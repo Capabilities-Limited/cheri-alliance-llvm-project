@@ -162,14 +162,15 @@ void RISCVInstPrinter::printCheriCSRSystemRegister(const MCInst *MI,
                                                    const MCSubtargetInfo &STI,
                                                    raw_ostream &O) {
   unsigned Imm = MI->getOperand(OpNo).getImm();
-  auto Range = RISCVCheriSysReg::lookupCheriSysRegByEncoding(Imm);
-  for (auto &Reg : Range) {
-    if (Reg.IsYName && !STI.hasFeature(RISCV::FeatureStdExtY))
-      continue;
-    if (Reg.IsZcheriName &&
-        !STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap))
-      continue;
-    O << Reg.Name;
+  const RISCVCheriSysReg::CheriSysReg *Reg;
+  if (STI.hasFeature(RISCV::FeatureStdExtY))
+    Reg = RISCVCheriSysReg::lookupRVYSysRegByEncoding(Imm);
+  else if (STI.hasFeature(RISCV::FeatureStdExtZCheriPureCap))
+    Reg = RISCVCheriSysReg::lookupZCheriSysRegByEncoding(Imm);
+  else
+    Reg = nullptr;
+  if (Reg) {
+    O << Reg->Name;
     return;
   }
   O << Imm;
