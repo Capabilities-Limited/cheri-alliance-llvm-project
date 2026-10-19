@@ -142,6 +142,8 @@ Register RISCVInstrInfo::isLoadFromStackSlot(const MachineInstr &MI,
     break;
   case RISCV::CLC:
   case RISCV::LC:
+  case RISCV::CLY:
+  case RISCV::LY:
     MemBytes = STI.isRV32() ? 8 : 16;
     break;
   }
@@ -198,6 +200,8 @@ Register RISCVInstrInfo::isStoreToStackSlot(const MachineInstr &MI,
     break;
   case RISCV::SC:
   case RISCV::CSC:
+  case RISCV::SY:
+  case RISCV::CSY:
     MemBytes = STI.isRV32() ? 8 : 16;
     break;
   }
