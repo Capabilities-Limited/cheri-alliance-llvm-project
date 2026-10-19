@@ -583,7 +583,7 @@ def : InstAlias<"c.lysp $rd, ${imm}(${rs1})", (C_CLCCSP_64 YGPRNoX0:$rd, YSP:$rs
 //===----------------------------------------------------------------------===//
 
 let DecoderNamespace = "CapModeOnly_" in {
-let Predicates = [HasStdExtH, HasZCheriPurecap, IsCapMode] in {
+let Predicates = [HasStdExtH, HasYOrZCheriPurecap, IsCapMode] in {
 def CHLV_B   : CHLoad_r<0b0110000, 0b00000, "hlv.b">, Sched<[]>;
 def CHLV_BU  : CHLoad_r<0b0110000, 0b00001, "hlv.bu">, Sched<[]>;
 def CHLV_H   : CHLoad_r<0b0110010, 0b00000, "hlv.h">, Sched<[]>;
@@ -597,7 +597,7 @@ def CHSV_H   : CHStore_rr<0b0110011, "hsv.h">, Sched<[]>;
 def CHSV_W   : CHStore_rr<0b0110101, "hsv.w">, Sched<[]>;
 def CHSV_C   : CHStore_rr<0b0111001, "hsv.c", GPCR>, Sched<[]>;
 }
-let Predicates = [IsRV64, HasStdExtH, HasZCheriPurecap, IsCapMode] in {
+let Predicates = [IsRV64, HasStdExtH, HasYOrZCheriPurecap, IsCapMode] in {
 def CHLV_WU  : CHLoad_r<0b0110100, 0b00001, "hlv.wu">, Sched<[]>;
 def CHLV_D   : CHLoad_r<0b0110110, 0b00000, "hlv.d">, Sched<[]>;
 def CHSV_D   : CHStore_rr<0b0110111, "hsv.d">, Sched<[]>;
@@ -616,7 +616,7 @@ def HSV_C    : HStore_rr<0b0111001, "hsv.c", GPCR>, Sched<[]>;
 // Instruction Class Templates
 let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
 class CCBO_r<bits<12> optype, string opcodestr>
-    : RVInstI<0b010, OPC_MISC_MEM, (outs), (ins GPCRMemZeroOffset:$rs1),
+    : RVInstI<0b010, OPC_MISC_MEM, (outs), (ins RVYCompatMemZeroOffset:$rs1),
               opcodestr, "$rs1"> {
   let imm12 = optype;
   let rd = 0b00000;
@@ -624,7 +624,7 @@ class CCBO_r<bits<12> optype, string opcodestr>
 
 let hasSideEffects = 0, mayLoad = 1, mayStore = 1 in
 class CPrefetch_ri<bits<5> optype, string opcodestr>
-    : RVInstS<0b110, OPC_OP_IMM, (outs), (ins GPCR:$rs1, simm12_lsb00000:$imm12),
+    : RVInstS<0b110, OPC_OP_IMM, (outs), (ins RVYCompatGPCR:$rs1, simm12_lsb00000:$imm12),
               opcodestr, "${imm12}(${rs1})"> {
   let Inst{11-7} = 0b00000;
   let rs2 = optype;
@@ -632,17 +632,17 @@ class CPrefetch_ri<bits<5> optype, string opcodestr>
 
 // Instructions
 let DecoderNamespace = "CapModeOnly_" in {
-let Predicates = [HasStdExtZicbom, HasZCheriPurecap, IsCapMode] in {
+let Predicates = [HasStdExtZicbom, HasYOrZCheriPurecap, IsCapMode] in {
 def CCBO_CLEAN : CCBO_r<0b000000000001, "cbo.clean">, Sched<[]>;
 def CCBO_FLUSH : CCBO_r<0b000000000010, "cbo.flush">, Sched<[]>;
 def CCBO_INVAL : CCBO_r<0b000000000000, "cbo.inval">, Sched<[]>;
 } // Predicates = [HasStdExtZicbom, HasZCheriPurecap, IsCapMode]
 
-let Predicates = [HasStdExtZicboz, HasZCheriPurecap, IsCapMode] in {
+let Predicates = [HasStdExtZicboz, HasYOrZCheriPurecap, IsCapMode] in {
 def CCBO_ZERO : CCBO_r<0b000000000100, "cbo.zero">, Sched<[]>;
 } // Predicates = [HasStdExtZicboz, HasZCheriPurecap, IsCapMode]
 
-let Predicates = [HasStdExtZicbop, HasZCheriPurecap, IsCapMode] in {
+let Predicates = [HasStdExtZicbop, HasYOrZCheriPurecap, IsCapMode] in {
 def CPREFETCH_I : CPrefetch_ri<0b00000, "prefetch.i">, Sched<[]>;
 def CPREFETCH_R : CPrefetch_ri<0b00001, "prefetch.r">, Sched<[]>;
 def CPREFETCH_W : CPrefetch_ri<0b00011, "prefetch.w">, Sched<[]>;
