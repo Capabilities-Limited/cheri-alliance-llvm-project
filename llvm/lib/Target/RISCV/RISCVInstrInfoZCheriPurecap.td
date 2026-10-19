@@ -591,11 +591,11 @@ def CHLV_HU  : CHLoad_r<0b0110010, 0b00001, "hlv.hu">, Sched<[]>;
 def CHLVX_HU : CHLoad_r<0b0110010, 0b00011, "hlvx.hu">, Sched<[]>;
 def CHLV_W   : CHLoad_r<0b0110100, 0b00000, "hlv.w">, Sched<[]>;
 def CHLVX_WU : CHLoad_r<0b0110100, 0b00011, "hlvx.wu">, Sched<[]>;
-def CHLV_C   : CHLoad_r<0b0111000, 0b00000, "hlv.c">, Sched<[]>;
+def CHLV_C   : CHLoad_r<0b0111000, 0b00000, "hlv.c", GPCR>, Sched<[]>;
 def CHSV_B   : CHStore_rr<0b0110001, "hsv.b">, Sched<[]>;
 def CHSV_H   : CHStore_rr<0b0110011, "hsv.h">, Sched<[]>;
 def CHSV_W   : CHStore_rr<0b0110101, "hsv.w">, Sched<[]>;
-def CHSV_C   : CHStore_rr<0b0111001, "hsv.c">, Sched<[]>;
+def CHSV_C   : CHStore_rr<0b0111001, "hsv.c", GPCR>, Sched<[]>;
 }
 let Predicates = [IsRV64, HasStdExtH, HasZCheriPurecap, IsCapMode] in {
 def CHLV_WU  : CHLoad_r<0b0110100, 0b00001, "hlv.wu">, Sched<[]>;
@@ -605,8 +605,8 @@ def CHSV_D   : CHStore_rr<0b0110111, "hsv.d">, Sched<[]>;
 }
 
 let Predicates = [HasStdExtH, HasZCheriPurecap, NotCapMode] in {
-def HLV_C    : CHLoad_r<0b0111000, 0b00000, "hlv.c", GPRMemZeroOffset>, Sched<[]>;
-def HSV_C    : CHStore_rr<0b0111001, "hsv.c", GPRMemZeroOffset>, Sched<[]>;
+def HLV_C    : HLoad_r<0b0111000, 0b00000, "hlv.c", GPCR>, Sched<[]>;
+def HSV_C    : HStore_rr<0b0111001, "hsv.c", GPCR>, Sched<[]>;
 }
 
 //===----------------------------------------------------------------------===//

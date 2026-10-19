@@ -124,16 +124,17 @@ class CheriCSR_ii<bits<3> funct3, string opcodestr>
               "$rd, $imm12, $rs1">, Sched<[WriteCSR]>;
 
 let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
-class CHLoad_r<bits<7> funct7, bits<5> funct5, string opcodestr, DAGOperand rs1Class=GPCRMemZeroOffset>
-    : RVInstR<funct7, 0b100, OPC_SYSTEM, (outs GPCR:$rd),
-              (ins rs1Class:$rs1), opcodestr, "$rd, $rs1"> {
+class CHLoad_r<bits<7> funct7, bits<5> funct5, string opcodestr,
+               DAGOperand rty = GPR>
+    : RVInstR<funct7, 0b100, OPC_SYSTEM, (outs rty:$rd),
+              (ins GPCRMemZeroOffset:$rs1), opcodestr, "$rd, $rs1"> {
   let rs2 = funct5;
 }
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
-class CHStore_rr<bits<7> funct7, string opcodestr, DAGOperand rs1Class=GPCRMemZeroOffset>
+class CHStore_rr<bits<7> funct7, string opcodestr, DAGOperand rty = GPR>
     : RVInstR<funct7, 0b100, OPC_SYSTEM, (outs),
-              (ins GPCR:$rs2, rs1Class:$rs1),
+              (ins rty:$rs2, GPCRMemZeroOffset:$rs1),
                opcodestr, "$rs2, $rs1"> {
   let rd = 0;
 }
