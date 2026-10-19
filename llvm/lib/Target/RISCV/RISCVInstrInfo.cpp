@@ -680,7 +680,7 @@ void RISCVInstrInfo::storeRegToStackSlot(MachineBasicBlock &MBB,
                RISCV::SW : RISCV::SD;
       IsScalableVector = false;
     } else if (RISCV::GPCRRegClass.hasSubClassEq(RC)) {
-      Opcode = ST.hasStdExtY() ? RISCV::CSY
+      Opcode = ST.hasStdExtY() ? RISCV::SY
                : ST.hasStdExtZCheriPureCap()
                    ? RISCV::SC
                    : (ST.isRV64() ? RISCV::SC_128 : RISCV::SC_64);
