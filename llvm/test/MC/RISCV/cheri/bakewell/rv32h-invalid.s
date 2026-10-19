@@ -5,8 +5,8 @@
 
 hfence.vvma zero, zero # CHECK: :[[@LINE]]:1: error: instruction requires the following: 'H' (Hypervisor)
 
-hlv.h   a0, 0(ca1) # CHECK: :[[@LINE]]:1: error: instruction requires the following: 'H' (Hypervisor), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode
+hlv.h   a0, 0(ca1) # CHECK: :[[@LINE]]:1: error: instruction requires the following: 'H' (Hypervisor), 'Base Y' (CHERI) or 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode
 
-hlv.wu  a0, 0(ca1) # CHECK: :[[@LINE]]:1: error: instruction requires the following: 'H' (Hypervisor), 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode
+hlv.wu  a0, 0(ca1) # CHECK: :[[@LINE]]:1: error: instruction requires the following: 'H' (Hypervisor), 'Base Y' (CHERI) or 'Zcheripurecap' (CHERI aware Instructions), Capability Pointer Mode
 
 hlv.b   a0, 100(ca1) # CHECK-OFFSET: :[[@LINE]]:13: error: optional integer offset must be 0
